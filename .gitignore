@@ -1,0 +1,6 @@
+node_modules/
+.env
+*.log
+
+# Local presentation notes
+WALKTHROUGH_SCRIPT.md
