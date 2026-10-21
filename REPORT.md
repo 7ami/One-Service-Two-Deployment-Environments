@@ -195,3 +195,4 @@ However, as demonstrated in our experiments, Kubernetes provides critical enterp
 1. **Self-Healing Replication:** Automatically detecting and recreating replacement Pods upon node or process termination to guarantee target replica counts.
 2. **Dynamic Endpoint Management:** Decoupling service endpoints from volatile IP addresses via EndpointSlices.
 3. **Traffic Gating via Readiness Probes:** Ensuring failing, slow-starting, or overloaded replicas are isolated from incoming client traffic without killing the process, preserving service uptime and user experience.
+

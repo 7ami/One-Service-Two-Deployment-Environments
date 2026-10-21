@@ -12,3 +12,4 @@ services:
       - PORT=8080
       - SERVICE_NAME=cs554-compose-node
       - MESSAGE=Hello from Docker Compose inside Linux VM!
+

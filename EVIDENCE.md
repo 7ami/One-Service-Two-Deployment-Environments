@@ -1,16 +1,19 @@
 # Midterm Mini-Project: Empirical Evidence Log
-**Course:** CS 554 — Advanced Computer Networks / Cloud Computing  
-**Student Level:** Graduate (CS 554 Extension Included)  
-**Execution Date:** Fall 2026  
+
+**Course:** CS 554 — Advanced Computer Networks / Cloud Computing
+**Student Level:** Graduate (CS 554 Extension Included)
+**Execution Date:** Fall 2026
 
 ---
 
 ## Evidence Section 1: Application Container Build & Test Suite
 
 ### 1.1 Docker Image Build
+
 ```bash
 docker build -t cs554-midterm-app:1.0.0 -t cs554-midterm-app:latest .
 ```
+
 ```text
 #0 building with "desktop-linux" instance using docker driver
 #1 [internal] load build definition from Dockerfile
@@ -28,9 +31,11 @@ docker build -t cs554-midterm-app:1.0.0 -t cs554-midterm-app:latest .
 ```
 
 ### 1.2 Automated Containerized Unit Tests
+
 ```bash
 docker run --rm -v "${PWD}:/workspace" -w /workspace cs554-midterm-app:1.0.0 npm test
 ```
+
 ```text
 > cs454-midterm-starter@1.0.0 test
 > node --test test/service.test.js
@@ -63,18 +68,22 @@ ok 1 - configured responses, local counter, health, and fresh instance
 ## Evidence Section 2: Docker Compose inside Linux VM (Part 2)
 
 ### 2.1 Compose Service Status inside Linux VM (Ubuntu 24.04 on Hyper-V)
+
 ```bash
 docker compose ps
 ```
+
 ```text
 NAME                    IMAGE                     COMMAND                  SERVICE   CREATED          STATUS          PORTS
 cs554-compose-service   cs554-midterm-app:1.0.0   "docker-entrypoint.s…"   web       14 seconds ago   Up 14 seconds   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
 ```
 
 ### 2.2 Endpoint Verification inside Linux VM (Loopback)
+
 ```bash
 curl -i http://localhost:8080/
 ```
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -89,6 +98,7 @@ Transfer-Encoding: chunked
 ```bash
 curl -i http://localhost:8080/health
 ```
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -101,12 +111,14 @@ Transfer-Encoding: chunked
 ```
 
 ### 2.3 Host-to-VM Requests from Windows Host
+
 ```powershell
 curl.exe -i http://localhost:8080/
 curl.exe -i http://localhost:8080/health
 curl.exe -i http://localhost:8080/
 curl.exe -i http://localhost:8080/
 ```
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -146,10 +158,12 @@ Transfer-Encoding: chunked
 ```
 
 ### 2.4 Service Restart & Local Counter Reset
+
 ```bash
 docker compose restart web
 curl.exe -i http://localhost:8080/
 ```
+
 ```http
 Container cs554-compose-service  Restarting
 Container cs554-compose-service  Started
@@ -163,12 +177,15 @@ Transfer-Encoding: chunked
 
 {"service":"cs554-compose-node","message":"Hello from Docker Compose inside Linux VM!","hostname":"418786f4cb57","requestCount":1}
 ```
+
 *Observation:* Volatile process memory was cleared; request count reset from 3 to 1 while container hostname persisted.
 
 ### 2.5 Standard Output Container Logs
+
 ```bash
 docker compose logs
 ```
+
 ```text
 cs554-compose-service  | Listening on port 8080
 cs554-compose-service  | {"method":"GET","path":"/","status":200}
@@ -185,21 +202,25 @@ cs554-compose-service  | {"method":"GET","path":"/","status":200}
 ## Evidence Section 3: Kubernetes Deployment & Resilience (Part 3)
 
 ### 3.1 Image Import into k3d Cluster
+
 ```bash
 k3d image import cs554-midterm-app:1.0.0 -c midterm-cluster
 ```
+
 ```text
 INFO[0000] Importing image(s) into cluster 'midterm-cluster' 
-INFO[0001] Saving 1 image(s) from runtime...            
-INFO[0015] Importing images into nodes...               
+INFO[0001] Saving 1 image(s) from runtime...          
+INFO[0015] Importing images into nodes...             
 INFO[0015] Importing images from tarball into node 'k3d-midterm-cluster-server-0'... 
 INFO[0053] Successfully imported 1 image(s) into 1 cluster(s)
 ```
 
 ### 3.2 Two Ready Replicas & Service Status
+
 ```bash
 kubectl get deployment,pods,svc,endpointslices -l app=cs554-web
 ```
+
 ```text
 NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/cs554-web-deployment   2/2     2            2           52s
@@ -216,11 +237,13 @@ endpointslice.discovery.k8s.io/cs554-web-service-gbn99   IPv4          8080    1
 ```
 
 ### 3.3 Traffic Access through Kubernetes Service
+
 ```bash
 kubectl port-forward svc/cs554-web-service 8085:8080
 curl.exe -i http://localhost:8085/
 curl.exe -i http://localhost:8085/health
 ```
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -242,11 +265,13 @@ Transfer-Encoding: chunked
 ```
 
 ### 3.4 Pod Deletion & Automated Replica Replacement
+
 ```bash
 kubectl get pods -l app=cs554-web
 kubectl delete pod cs554-web-deployment-676c756f66-4mfcd
 kubectl get pods -l app=cs554-web
 ```
+
 ```text
 === CURRENT PODS BEFORE DELETION ===
 NAME                                    READY   STATUS    RESTARTS   AGE
@@ -272,47 +297,55 @@ cs554-web-deployment-676c756f66-vzj68   1/1     Running   0          2m1s
 ## Evidence Section 4: Controlled Failure & Troubleshooting (Part 4)
 
 ### 4.1 Injection: Selector Mismatch (`app: cs554-web-mismatch`)
+
 ```bash
 kubectl apply -f k8s/service.yaml
 ```
+
 ```text
 service/cs554-web-service configured
 ```
 
 ### 4.2 Diagnostic Evidence of Failure
+
 ```bash
 kubectl get pods --show-labels
 kubectl describe svc cs554-web-service | grep -E "Selector|Endpoints"
 kubectl get endpointslices -l kubernetes.io/service-name=cs554-web-service
 ```
+
 ```text
 NAME                                    READY   STATUS    RESTARTS   AGE     LABELS
 cs554-web-deployment-676c756f66-sk6cq   1/1     Running   0          42s     app=cs554-web,pod-template-hash=676c756f66
 cs554-web-deployment-676c756f66-vzj68   1/1     Running   0          2m37s   app=cs554-web,pod-template-hash=676c756f66
 
 Selector:                 app=cs554-web-mismatch
-Endpoints:                
+Endpoints:              
 
 NAME                      ADDRESSTYPE   PORTS     ENDPOINTS   AGE
 cs554-web-service-gbn99   IPv4          <unset>   <unset>     2m38s
 ```
 
 ### 4.3 Client Symptom
+
 ```bash
 kubectl run test-client --image=curlimages/curl --restart=Never --rm -i --command -- curl --connect-timeout 3 -i http://cs554-web-service:8080/
 ```
+
 ```text
 curl: (7) Failed to connect to cs554-web-service:8080 after 34 ms: Could not connect to server
 pod "test-client" deleted from default namespace
 ```
 
 ### 4.4 Recovery Verification
+
 ```bash
 # Selector reverted to app: cs554-web
 kubectl apply -f k8s/service.yaml
 kubectl get endpointslices -l kubernetes.io/service-name=cs554-web-service
 kubectl run test-recovery --image=curlimages/curl --restart=Never --rm -i --command -- curl -i http://cs554-web-service:8080/
 ```
+
 ```text
 service/cs554-web-service configured
 
@@ -334,10 +367,12 @@ Transfer-Encoding: chunked
 ## Evidence Section 5: CS 554 Live Readiness Probe Experiment
 
 ### 5.1 Baseline State
+
 ```bash
 kubectl get pods -l app=cs554-web -o wide
 kubectl get endpointslices -l kubernetes.io/service-name=cs554-web-service
 ```
+
 ```text
 NAME                                    READY   STATUS    RESTARTS   AGE     IP           NODE                           NOMINATED NODE   READINESS GATES
 cs554-web-deployment-676c756f66-sk6cq   1/1     Running   0          4m21s   10.42.0.11   k3d-midterm-cluster-server-0   <none>           <none>
@@ -348,18 +383,22 @@ cs554-web-service-gbn99   IPv4          8080    10.42.0.10,10.42.0.11   6m16s
 ```
 
 ### 5.2 Failure Injection: One Pod Toggled Unready (Process Running, Not Crashed)
+
 ```bash
 kubectl run toggle-off --image=curlimages/curl --restart=Never --rm -i --command -- curl -s -X POST http://10.42.0.11:8080/health/unready
 ```
+
 ```json
 {"status":"ok","isReady":false,"message":"Instance marked NotReady"}
 ```
 
 ### 5.3 Diagnostic Evidence: Pod NotReady & EndpointSlice Exclusion
+
 ```bash
 kubectl get pods -l app=cs554-web -o wide
 kubectl get endpointslices -l kubernetes.io/service-name=cs554-web-service -o yaml
 ```
+
 ```yaml
 # Pod Status:
 NAME                                    READY   STATUS    RESTARTS   AGE     IP           NODE
@@ -385,12 +424,15 @@ endpoints:
   targetRef:
     name: cs554-web-deployment-676c756f66-sk6cq
 ```
+
 *Key Finding:* Pod `sk6cq` remained in state `Running` with `RESTARTS: 0`. The process was never killed. The EndpointSlice controller cleanly set `ready: false, serving: false`.
 
 ### 5.4 Traffic Verification: In-Flight Client Routes Only to Healthy Backend
+
 ```bash
 kubectl run test-traffic --image=curlimages/curl --restart=Never --rm -i --command -- curl -s -i http://cs554-web-service:8080/
 ```
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -403,11 +445,13 @@ Transfer-Encoding: chunked
 ```
 
 ### 5.5 Recovery: Readiness Restored
+
 ```bash
 kubectl run toggle-on --image=curlimages/curl --restart=Never --rm -i --command -- curl -s -X POST http://10.42.0.11:8080/health/ready
 kubectl get pods -l app=cs554-web -o wide
 kubectl get endpointslices -l kubernetes.io/service-name=cs554-web-service
 ```
+
 ```text
 {"status":"ok","isReady":true,"message":"Instance marked Ready"}
 
