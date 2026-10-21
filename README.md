@@ -11,26 +11,6 @@
 
 ---
 
-## Project Structure
-
-```
-midterm-project/
-├── Dockerfile                  # Multi-environment OCI container image definition
-├── docker-compose.yml          # Part 2: VM & Compose orchestration spec
-├── .dockerignore               # Build context optimization
-├── k8s/
-│   ├── deployment.yaml         # Part 3 & CS 554: Deployment (2 replicas, limits, readiness probe)
-│   └── service.yaml            # Part 3 & 4: Service (ClusterIP, port 8080)
-├── src/
-│   └── server.js               # Node.js HTTP service (/ and /health endpoints + toggle)
-├── test/
-│   └── service.test.js         # Automated unit & integration tests
-├── REPORT.md                   # Technical Report, comparison, and OpenStack analysis
-├── EVIDENCE.md                 # Labeled terminal output logs and observation data
-└── README.md                   # Build, run, test, and reproducibility guide
-```
-
----
 
 ## 1. Prerequisites & Toolchain
 
