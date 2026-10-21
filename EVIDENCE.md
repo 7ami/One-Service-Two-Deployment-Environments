@@ -1,6 +1,6 @@
 # Midterm Mini-Project: Empirical Evidence Log
 
-**Course:** CS 554 — Advanced Computer Networks / Cloud Computing
+**Course:** CS 554 
 **Student Level:** Graduate (CS 554 Extension Included)
 **Execution Date:** Fall 2026
 
